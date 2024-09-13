@@ -26,12 +26,14 @@ jobs:
 
       - name: Get Version from Tag
         id: get_version
+        shell: bash
         run: |
           TAG=$(git describe --tags --abbrev=0)
           echo ::set-output name=VERSION::${TAG#v}
 
       - name: Get Short Commit Hash
         id: get_short_commit_hash
+        shell: bash
         run: echo ::set-output name=COMMIT_Hash::$(git rev-parse --short HEAD)
 
       - name: Setup .NET CORE SDK
