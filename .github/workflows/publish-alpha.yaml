@@ -15,25 +15,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Check if Version Tag is present
-        id: check_tag
-        run: |
-          if ($env:GITHUB_REF_TYPE -ne "tag") {
-            Write-Output "This Push has no tag associated. Exiting."
-            exit 0
-          }
-
       - name: Get Version from Tag
         id: get_version
         run: |
           $TAG = git describe --tags --abbrev=0
-          echo "::set-output name=VERSION::$($TAG -replace '^v', '')"
+          echo "VERSION=$($TAG -replace '^v', '')" >> $env:GITHUB_OUTPUT
 
       - name: Get Short Commit Hash
         id: get_short_commit_hash
         run: |
           $COMMIT_HASH = git rev-parse --short HEAD
-          echo "::set-output name=COMMIT_HASH::$COMMIT_HASH"
+          echo "COMMIT_HASH=$COMMIT_HASH" >> $env:GITHUB_OUTPUT
 
       - name: Setup .NET CORE SDK
         uses: actions/setup-dotnet@v4
@@ -53,8 +45,11 @@ jobs:
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}-alpha-${{ steps.get_short_commit_hash.outputs.COMMIT_HASH }}" 
           dotnet pack --configuration Release --no-build --output ./nupkg /p:Version=$version
+          $nupkgPath = Get-ChildItem -Path ./nupkg -Filter *.nupkg | Select-Object -ExpandProperty FullName
+          echo "NUPKG_PATH=$nupkgPath" >> $env:GITHUB_ENV
+
 
       - name: Publish to NuGet.org
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: dotnet nuget push AspNetCoreSqliteFileProviderLibrary/*.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push $env:NUPKG_PATH --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
