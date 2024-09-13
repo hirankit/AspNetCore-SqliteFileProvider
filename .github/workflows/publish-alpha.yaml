@@ -17,6 +17,7 @@ jobs:
 
       - name: Check if Version Tag is present
         id: check_tag
+        shell: bash
         run: |
           if [ "${GITHUB_REF_TYPE}" != "tag" ]; then
           echo "This Push has no tag associated. Exiting."
