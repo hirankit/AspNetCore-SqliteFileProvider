@@ -1,0 +1,53 @@
+name: Publish Alpha NuGet Package
+
+on:
+  push:
+    branch:
+      - alpha
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check if Version Tag is present
+        id: check_tag
+        run: |
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then
+          echo "This Push has no tag associated. Exiting."
+          exit 0
+          fi
+
+      - name: Get Version from Tag
+        id: get_version
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          echo ::set-output name=VERSION::${TAG#v}
+
+      - name: Get Short Commit Hash
+        id: get_short_commit_hash
+        run: echo ::set-output name=COMMIT_Hash::$(git rev-parse --short HEAD)
+
+      - name: Setup .NET CORE SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore .NET Dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Pack
+        run: dotnet pack --configuration Release --no-build --output ./nupkg /p:Version=${{ steps.get_version.outputs.VERSION }}-alpha-${{ steps.get_commit_hash.outputs.COMMIT_HASH }}
+
+      - name: Publish to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          run: dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
