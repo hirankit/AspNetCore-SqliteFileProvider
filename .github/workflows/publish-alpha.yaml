@@ -2,7 +2,7 @@ name: Publish Alpha NuGet Package
 
 on:
   push:
-    branch:
+    branches:
       - alpha
     tags:
       - 'v*.*.*'
