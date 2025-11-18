@@ -21,7 +21,10 @@ public class FileService
         Name TEXT NOT NULL,
         Path TEXT NOT NULL UNIQUE,
         ContentType TEXT NOT NULL,
-        Content BLOB NOT NULL
+        Content BLOB NOT NULL,
+        Length INTEGER NOT NULL,
+        CreatedAt DATETIME NOT NULL,
+        LastModifiedAt DATETIME NOT NULL
         );
         ";
         connection.Execute(query);
@@ -30,7 +33,7 @@ public class FileService
     public FileRecord? GetFile(string filePath)
     {
         using var connection = new SqliteConnection(_connectionString);
-        var query = "SELECT Id, Name, Path, ContentType, Content FROM Files WHERE Path = @Path";
+        var query = "SELECT Id, Name, Path, ContentType, Content, Length, CreatedAt, LastModifiedAt FROM Files WHERE Path = @Path";
         return connection.QueryFirstOrDefault<FileRecord?>(query, new { Path = filePath });
     }
 
@@ -38,11 +41,13 @@ public class FileService
     {
         using var connection = new SqliteConnection(_connectionString);
         var query = @"
-        INSERT INTO Files (Name, Path, ContentType, Content)
-        VALUES (@Name, @Path, @ContentType, @Content)
+        INSERT INTO Files (Name, Path, ContentType, Content, Length, CreatedAt, LastModifiedAt)
+        VALUES (@Name, @Path, @ContentType, @Content, @Length, @CreatedAt, @LastModifiedAt)
         ON CONFLICT(Path) DO
             UPDATE SET ContentType = excluded.ContentType,
-            Content = excluded.Content
+            Content = excluded.Content,
+            Length = excluded.Length,
+            LastModifiedAt = excluded.LastModifiedAt
         ;
         ";
         connection.Execute(query, file);

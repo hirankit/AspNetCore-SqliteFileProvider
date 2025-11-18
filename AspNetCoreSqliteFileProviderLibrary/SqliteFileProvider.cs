@@ -14,7 +14,7 @@ public class DatabaseFileProvider : IFileProvider
 
     public IDirectoryContents GetDirectoryContents(string path)
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(); // Directory listing is not supported
     }
 
     public IFileInfo GetFileInfo(string path)

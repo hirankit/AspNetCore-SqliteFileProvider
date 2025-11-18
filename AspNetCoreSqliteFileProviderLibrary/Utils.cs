@@ -15,6 +15,7 @@ public static class Utils
         {
             var fileName = Path.GetFileName(filePath);
             var contentType = MimeHelper.GetContentType(fileName);
+            var fileInfo = new FileInfo(filePath);
             var content = File.ReadAllBytes(filePath);
             var relativePath = Path.GetRelativePath(root, filePath).Replace("\\", "/");
             var fileRecord = new FileRecord
@@ -23,7 +24,10 @@ public static class Utils
                 Name: fileName,
                 Path: $"/{relativePath}",
                 ContentType: contentType,
-                Content: content
+                Content: content,
+                Length: content.Length,
+                CreatedAt: fileInfo.CreationTimeUtc,
+                LastModifiedAt: fileInfo.LastWriteTimeUtc
             );
 
             fileService.SaveFile(fileRecord);
