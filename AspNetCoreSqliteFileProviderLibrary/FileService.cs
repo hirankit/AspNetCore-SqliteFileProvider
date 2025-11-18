@@ -9,10 +9,10 @@ public class FileService
     public FileService(string connectionString)
     {
         _connectionString = connectionString;
-        InitializeDatabase().Wait();
+        InitializeDatabase();
     }
 
-    private async Task InitializeDatabase()
+    private void InitializeDatabase()
     {
         using var connection = new SqliteConnection(_connectionString);
         var query = @"
@@ -24,17 +24,17 @@ public class FileService
         Content BLOB NOT NULL
         );
         ";
-        await connection.ExecuteAsync(query);
+        connection.Execute(query);
     }
 
-    public async Task<FileRecord?> GetFileAsync(string filePath)
+    public FileRecord? GetFile(string filePath)
     {
         using var connection = new SqliteConnection(_connectionString);
         var query = "SELECT Id, Name, Path, ContentType, Content FROM Files WHERE Path = @Path";
-        return await connection.QueryFirstOrDefaultAsync<FileRecord?>(query, new { Path = filePath });
+        return connection.QueryFirstOrDefault<FileRecord?>(query, new { Path = filePath });
     }
 
-    public async Task SaveFileAsync(FileRecord file)
+    public void SaveFile(FileRecord file)
     {
         using var connection = new SqliteConnection(_connectionString);
         var query = @"
@@ -45,6 +45,6 @@ public class FileService
             Content = excluded.Content
         ;
         ";
-        await connection.ExecuteAsync(query, file);
+        connection.Execute(query, file);
     }
 }

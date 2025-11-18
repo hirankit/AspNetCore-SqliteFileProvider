@@ -19,7 +19,7 @@ public class DatabaseFileProvider : IFileProvider
 
     public IFileInfo GetFileInfo(string path)
     {
-        var fileRecord = _fileService.GetFileAsync(path).Result;
+        var fileRecord = _fileService.GetFile(path);
         return new SqliteDatabaseFileInfo(fileRecord);
     }
 
