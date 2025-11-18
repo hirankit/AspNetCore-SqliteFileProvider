@@ -2,10 +2,8 @@ name: Publish Alpha NuGet Package
 
 on:
   push:
-    branches:
-      - alpha
     tags:
-      - 'v*.*.*'
+      - 'alpha-v*.*.*'
 
 jobs:
   build:
@@ -19,7 +17,7 @@ jobs:
         id: get_version
         run: |
           $TAG = git describe --tags --abbrev=0
-          echo "VERSION=$($TAG -replace '^v', '')" >> $env:GITHUB_OUTPUT
+          echo "VERSION=$($TAG -replace '^alpha-v', '')" >> $env:GITHUB_OUTPUT
 
       - name: Get Short Commit Hash
         id: get_short_commit_hash
