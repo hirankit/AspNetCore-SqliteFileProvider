@@ -43,8 +43,12 @@ jobs:
       - name: Pack
         working-directory: AspNetCoreSqliteFileProviderLibrary
         run: |
+          $pkgId = "SPC42.AspNetCore.SqliteFileProvider"
+          $authors = "SPC42"
+          $description = "A SQLite-based IFileProvider implementation for ASP.NET Core that serves static files from a database."
           $version = "${{ steps.get_version.outputs.VERSION }}-alpha-${{ steps.get_short_commit_hash.outputs.COMMIT_HASH }}" 
-          dotnet pack --configuration Release --no-build --output ./nupkg /p:Version=$version
+          $license = "MIT"
+          dotnet pack --configuration Release --no-build --output ./nupkg /p:Version=$version /p:PackageId=$pkgId /p:Authors=$authors /p:Description="$description" /p:PackageLicenseExpression=$license
           $nupkgPath = Get-ChildItem -Path ./nupkg -Filter *.nupkg | Select-Object -ExpandProperty FullName
           echo "NUPKG_PATH=$nupkgPath" >> $env:GITHUB_ENV
 
