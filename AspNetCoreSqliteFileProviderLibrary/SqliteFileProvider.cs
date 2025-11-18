@@ -19,6 +19,13 @@ public class DatabaseFileProvider : IFileProvider
 
     public IFileInfo GetFileInfo(string path)
     {
+        if (string.IsNullOrEmpty(path))
+            throw new ArgumentException("Path cannot be null or empty.", nameof(path));
+
+        path = path.Replace("\\", "/");
+        if (path.Contains(".."))
+            throw new ArgumentException("Path traversal is not allowed.", nameof(path));
+        
         var fileRecord = _fileService.GetFile(path);
         return new SqliteDatabaseFileInfo(fileRecord);
     }

@@ -16,7 +16,8 @@ public class SqliteDatabaseFileInfo(FileRecord? fileRecord) : IFileInfo
 
     public Stream CreateReadStream()
     {
-        if (_fileRecord == null) throw new InvalidOperationException();
+        if (_fileRecord == null)
+            throw new InvalidOperationException("Cannot create read stream for a file that does not exist.");
 
         return new MemoryStream(_fileRecord.Content);
     }
